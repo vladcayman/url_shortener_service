@@ -97,7 +97,7 @@ docker compose ps
 
 Можно любым вариантом
 
-Вариант 1 — через compose (предпочтительно):
+Вариант 1 — через compose:
 ```
 docker compose exec web uv run python manage.py migrate
 ```
@@ -107,7 +107,7 @@ docker exec -it shortener_web uv run python manage.py migrate
 ```
 **4. Создать суперпользователя**
 
-Вариант 1 — через compose (рекомендуемый):
+Вариант 1 — через compose:
 ```
 docker compose exec web uv run python manage.py createsuperuser
 ```
