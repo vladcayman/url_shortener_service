@@ -19,6 +19,8 @@ from .serializers import (
 from .permissions import IsOwner
 from .utils import generate_short_code, detect_device
 
+from django.views.generic import TemplateView
+
 
 class LinkViewSet(viewsets.ModelViewSet):
     serializer_class = LinkSerializer
@@ -142,7 +144,6 @@ def redirect_view(request, short_code: str):
     )
     return HttpResponseRedirect(link.original_url)
 
-from django.views.generic import TemplateView
 
 class FrontendView(TemplateView):
     template_name = "shortener/index.html"

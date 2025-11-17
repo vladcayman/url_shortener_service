@@ -30,6 +30,3 @@ ENV/
 ### OS junk ###
 .DS_Store
 Thumbs.db
-
-### Misc ###
-*.lock
