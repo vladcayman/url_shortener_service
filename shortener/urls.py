@@ -1,19 +1,9 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import LinkViewSet, CategoryViewSet, TagViewSet, PublicShorten, redirect_view
-
-router = DefaultRouter()
-router.register(prefix="links", viewset=LinkViewSet, basename="links")
-router.register(prefix="categories", viewset=CategoryViewSet, basename="categories")
-router.register(prefix="tags", viewset=TagViewSet, basename="tags")
+from django.urls import path
+from .views import FrontendView, my_links_view, index_page, redirect_view
 
 urlpatterns = [
-    # публичный эндпоинт для создания короткой ссылки
-    path("shorten/", PublicShorten.as_view(), name="public-shorten"),
-
-    # REST API для авторизованных пользователей
-    path("", include(router.urls)),
-
-    # РЕДИРЕКТ ВНУТРИ /api/v1/
-    path("r/<str:short_code>/", redirect_view, name="redirect"),
+    path("", FrontendView.as_view(), name="frontend"),
+    path("", index_page, name="index"),
+    path("my/links/", my_links_view, name="my-links"),
+    path("r/<str:short_code>/", redirect_view, name="redirect_public"),
 ]

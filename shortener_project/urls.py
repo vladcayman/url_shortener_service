@@ -16,19 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from shortener.views import redirect_view, FrontendView, my_links_view, index_page
 
-
 urlpatterns = [
-    # главная страница с формой
+    # Главная страница с формой
     path("", FrontendView.as_view(), name="frontend"),
-
     path("", index_page, name="index"),
-    path("r/<str:short_code>/", redirect_view, name="redirect_public"),
     path("my/links/", my_links_view, name="my-links"),
 
+    # Админка
     path("admin/", admin.site.urls),
 
     # OpenAPI + Swagger
@@ -40,7 +40,7 @@ urlpatterns = [
     path("api/v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # API v1
-    path("api/v1/", include(("shortener.urls", "shortener"), namespace="v1")),
+    path("api/v1/", include(("shortener.api.urls", "shortener"), namespace="v1")),
 
     # публичный редирект без префикса
     path("r/<str:short_code>/", redirect_view, name="redirect_public"),
