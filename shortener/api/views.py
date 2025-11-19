@@ -7,6 +7,8 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions, decorators, response, status
 from rest_framework.views import APIView
 
+from django.core.cache import cache
+
 from ..filters import LinkFilter
 from ..models import Link, Category, Tag, ClickEvent
 from ..serializers import (
@@ -24,6 +26,9 @@ class LinkViewSet(viewsets.ModelViewSet):
     filterset_class = LinkFilter
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Link.objects.none()
+
         return (
             Link.objects
             .filter(owner=self.request.user)
@@ -32,8 +37,18 @@ class LinkViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        # Генерируем short_code
-        serializer.save(short_code=generate_short_code())
+        # создаём ссылку с owner
+        link = serializer.save(
+            owner=self.request.user,
+            short_code=generate_short_code()
+        )
+
+        # кладём ссылку в кэш
+        cache.set(
+            f"link:{link.short_code}",
+            {"id": link.id, "original_url": link.original_url},
+            timeout=300,
+        )
 
     @decorators.action(detail=True, methods=["post"])
     def check_alive(self, request, pk=None):
@@ -90,6 +105,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Category.objects.none()
+
         return Category.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
@@ -100,6 +118,9 @@ class TagViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Tag.objects.none()
+
         return Tag.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
@@ -125,10 +146,16 @@ class PublicShorten(APIView):
         owner = request.user if request.user.is_authenticated else None
 
         link = Link.objects.create(
-            owner=None,
+            owner=owner,
             original_url=s.validated_data["original_url"],
             short_code=code,
-            title=s.validated_data.get("title", ""),
+            title=s.validated_data.get("title", "") or "",
+        )
+
+        cache.set(
+            f"link:{link.short_code}",
+            {"id": link.id, "original_url": link.original_url},
+            timeout=300,
         )
 
         return response.Response(
