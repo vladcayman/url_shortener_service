@@ -16,6 +16,7 @@
 - ⚙️ Админ-панель Django для управления ссылками и пользователями  
 - 🌐 Мини-фронтенд на HTML/CSS/JS  
 - 🐳 Полностью Docker-изолированная инфраструктура (web + db)
+- ⚡ Кэширование популярных ссылок для ускорения редиректа
 
 ---
 
@@ -36,14 +37,20 @@
 ```
 shortener_project/
 │
-├── shortener/                          # Приложение Django
+├── shortener/                         # Приложение Django
+│   ├── api/                           # Пакет API (DRF)
+│   │   ├── __init__.py                
+│   │   ├── urls.py                    # URL-маршруты REST API v1
+│   │   └── views.py                   # ViewSet'ы и публичный API + кэш популярных ссылок
+│   │
 │   ├── migrations/                     # Миграции БД
 │   ├── templates/                      # HTML-шаблоны (Frontend)
 │   │   ├── index.html                  # Форма сокращения ссылок
-│   │   └── my_links.html               # Личный кабинет (список ссылок)
+│   │   └── my_links.html               # Личный кабинет (список ссылок пользователя)
+│   │
 │   ├── __init__.py
 │   ├── admin.py                        # Регистрация моделей в админке
-│   ├── apps.py
+│   ├── apps.py                         # Конфигурация приложения
 │   ├── filters.py                      # Поиск / фильтрация ссылок
 │   ├── models.py                       # Модели Link, Click, Category, Tag
 │   ├── permissions.py                  # Ограничения прав доступа
@@ -51,19 +58,19 @@ shortener_project/
 │   ├── tests.py                        # Тесты
 │   ├── urls.py                         # URL-маршруты приложения
 │   ├── utils.py                        # Вспомогательные функции
-│   └── views.py                        # Основная логика API/Frontend
+│   └── views.py                        # Основная логика Frontend
 │
 ├── shortener_project/                  # Основной модуль Django
 │   ├── __init__.py
 │   ├── asgi.py
 │   ├── settings.py                     # Настройки Django
-│   ├── urls.py                         # Маршрутизация проекта
+│   ├── urls.py                         # Глобальная маршрутизация проекта
 │   └── wsgi.py
 │
-├── .dockerignore                       # Исключения для Docker контекста
+├── .dockerignore                       # Исключения для Docker-контекста
 ├── .gitignore                          # Исключения для Git
 │
-├── docker-compose.yml                  # Docker: backend + PostgreSQL
+├── docker-compose.yml                  # Docker: Backend + PostgreSQL
 ├── Dockerfile                          # Образ Django
 │
 ├── LICENSE                             # MIT License
